@@ -6,7 +6,7 @@ authors = ["Your Name <your.email@example.com>"]
 description = "An authentic recreation of the 1978 Space Invaders arcade game"
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/yourusername/retrovaders"
+repository = "https://github.com/mabroor/retrovaders"
 keywords = ["game", "retro", "space-invaders", "arcade"]
 categories = ["games"]
 
