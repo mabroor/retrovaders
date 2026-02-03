@@ -21,9 +21,6 @@ serde_json = "1.0"
 # Random number generation for invader shooting, UFO spawns
 rand = "0.8"
 
-# Cross-platform directory handling for save files
-dirs = "5.0"
-
 [dev-dependencies]
 # Testing utilities
 pretty_assertions = "1.4"

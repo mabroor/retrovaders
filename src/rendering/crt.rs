@@ -102,49 +102,117 @@ pub fn draw_scanlines(settings: &CrtSettings) {
     }
 }
 
-/// CRT shader source (for future use with render targets)
-pub const CRT_SHADER_VERTEX: &str = r#"
-#version 100
-attribute vec3 position;
-attribute vec2 texcoord;
-varying lowp vec2 uv;
+/// Draw vignette effect (darken corners)
+pub fn draw_vignette() {
+    let w = WINDOW_WIDTH as f32;
+    let h = WINDOW_HEIGHT as f32;
 
-uniform mat4 Model;
-uniform mat4 Projection;
+    // Draw gradient rectangles at corners
+    let corner_size = 100.0;
+    let alpha = 0.3;
 
-void main() {
-    gl_Position = Projection * Model * vec4(position, 1);
-    uv = texcoord;
-}
-"#;
-
-pub const CRT_SHADER_FRAGMENT: &str = r#"
-#version 100
-precision lowp float;
-
-varying vec2 uv;
-
-uniform sampler2D Texture;
-uniform float scanline_weight;
-uniform float bloom_strength;
-uniform vec2 resolution;
-
-void main() {
-    vec4 color = texture2D(Texture, uv);
-
-    // Scanlines (every other line darker)
-    float scanline = sin(uv.y * resolution.y * 3.14159) * 0.5 + 0.5;
-    color.rgb *= mix(1.0, scanline, scanline_weight);
-
-    // Simple bloom (brighten based on luminance)
-    float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-    if (luma > 0.4) {
-        color.rgb += color.rgb * bloom_strength * (luma - 0.4);
+    // Top-left
+    for i in 0..10 {
+        let size = corner_size * (10 - i) as f32 / 10.0;
+        let a = alpha * i as f32 / 10.0;
+        draw_rectangle(0.0, 0.0, size, size, Color::new(0.0, 0.0, 0.0, a));
     }
 
-    gl_FragColor = color;
+    // Top-right
+    for i in 0..10 {
+        let size = corner_size * (10 - i) as f32 / 10.0;
+        let a = alpha * i as f32 / 10.0;
+        draw_rectangle(w - size, 0.0, size, size, Color::new(0.0, 0.0, 0.0, a));
+    }
+
+    // Bottom-left
+    for i in 0..10 {
+        let size = corner_size * (10 - i) as f32 / 10.0;
+        let a = alpha * i as f32 / 10.0;
+        draw_rectangle(0.0, h - size, size, size, Color::new(0.0, 0.0, 0.0, a));
+    }
+
+    // Bottom-right
+    for i in 0..10 {
+        let size = corner_size * (10 - i) as f32 / 10.0;
+        let a = alpha * i as f32 / 10.0;
+        draw_rectangle(w - size, h - size, size, size, Color::new(0.0, 0.0, 0.0, a));
+    }
 }
-"#;
+
+/// CRT post-processing manager (for future shader-based implementation)
+pub struct CrtPostProcessor {
+    pub settings: CrtSettings,
+    render_target: Option<RenderTarget>,
+    material: Option<Material>,
+}
+
+impl Default for CrtPostProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl CrtPostProcessor {
+    pub fn new() -> Self {
+        Self {
+            settings: CrtSettings::default(),
+            render_target: None,
+            material: None,
+        }
+    }
+
+    /// Initialize render target and shader
+    pub fn init(&mut self) {
+        // Create render target at game resolution
+        self.render_target = Some(render_target(GAME_WIDTH, GAME_HEIGHT));
+
+        // Try to load CRT shader material
+        // Note: In Macroquad, custom shaders require more setup
+        // For now, we use the simple software-based effects
+        self.material = None;
+    }
+
+    /// Begin rendering to the off-screen target
+    pub fn begin_render(&self) {
+        if let Some(rt) = &self.render_target {
+            set_camera(&Camera2D {
+                zoom: vec2(2.0 / GAME_WIDTH as f32, 2.0 / GAME_HEIGHT as f32),
+                target: vec2(GAME_WIDTH as f32 / 2.0, GAME_HEIGHT as f32 / 2.0),
+                render_target: Some(rt.clone()),
+                ..Default::default()
+            });
+        }
+    }
+
+    /// End rendering and draw to screen with CRT effects
+    pub fn end_render(&self) {
+        set_default_camera();
+
+        if let Some(rt) = &self.render_target {
+            // Draw the render target scaled up
+            let params = DrawTextureParams {
+                dest_size: Some(vec2(WINDOW_WIDTH as f32, WINDOW_HEIGHT as f32)),
+                flip_y: true,
+                ..Default::default()
+            };
+
+            draw_texture_ex(&rt.texture, 0.0, 0.0, WHITE, params);
+
+            // Apply software-based CRT effects
+            if self.settings.enabled {
+                apply_color_zones();
+                draw_scanlines(&self.settings);
+                draw_vignette();
+            }
+        }
+    }
+
+    /// Toggle CRT effects
+    pub fn toggle(&mut self) {
+        self.settings.toggle();
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -183,5 +251,12 @@ mod tests {
         assert_eq!(zones[0].y_end, zones[1].y_start);
         assert_eq!(zones[1].y_end, zones[2].y_start);
         assert_eq!(zones[2].y_end, zones[3].y_start);
+    }
+
+    #[test]
+    fn test_post_processor_new() {
+        let pp = CrtPostProcessor::new();
+        assert!(pp.settings.enabled);
+        assert!(pp.render_target.is_none());
     }
 }

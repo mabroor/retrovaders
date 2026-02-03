@@ -13,5 +13,6 @@ pub mod input;
 
 // Re-export commonly used types
 pub use game::config::*;
-pub use game::state::GameState;
+pub use game::state::{GameState, GameSession};
 pub use game::world::World;
+pub use game::settings::Settings;

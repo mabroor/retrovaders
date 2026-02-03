@@ -20,7 +20,7 @@ use game::world::World;
 use input::InputHandler;
 use audio::AudioManager;
 use rendering::crt::CrtSettings;
-use systems::{collision, movement, shooting};
+use systems::{collision, movement, shooting, scoring::ScoreManager};
 
 fn window_conf() -> Conf {
     Conf {
@@ -38,20 +38,33 @@ struct Game {
     input: InputHandler,
     audio: AudioManager,
     crt: CrtSettings,
+    score_manager: ScoreManager,
 }
 
 impl Game {
     fn new() -> Self {
+        let score_manager = ScoreManager::new();
+        let mut world = World::new();
+
+        // Load high score
+        world.session.high_score = score_manager.get_top_score();
+
         Self {
-            world: World::new(),
+            world,
             input: InputHandler::new(),
             audio: AudioManager::new(),
             crt: CrtSettings::default(),
+            score_manager,
         }
     }
 
     fn update(&mut self, delta: f32) {
         let input_state = self.input.poll();
+
+        // Toggle CRT effects with F1
+        if is_key_pressed(KeyCode::F1) {
+            self.crt.toggle();
+        }
 
         match self.world.session.state {
             GameState::Attract => {
@@ -128,8 +141,17 @@ impl Game {
             }
 
             GameState::GameOver => {
+                // Save high score if applicable
+                if self.world.session.score > 0 {
+                    self.score_manager.check_and_add_score(
+                        "PLR",
+                        self.world.session.score,
+                        self.world.session.wave,
+                    );
+                }
+
                 if input_state.start || self.input.any_key_pressed() {
-                    let high_score = self.world.session.high_score;
+                    let high_score = self.score_manager.get_top_score();
                     self.world = World::new();
                     self.world.session.high_score = high_score;
                 }
@@ -146,6 +168,7 @@ impl Game {
         match self.world.session.state {
             GameState::Attract => {
                 rendering::render_attract_screen();
+                self.render_crt_hint();
             }
 
             GameState::Playing | GameState::PlayerDeath | GameState::WaveComplete => {
@@ -155,6 +178,7 @@ impl Game {
                 if self.crt.enabled {
                     rendering::crt::apply_color_zones();
                     rendering::crt::draw_scanlines(&self.crt);
+                    rendering::crt::draw_vignette();
                 }
             }
 
@@ -167,6 +191,18 @@ impl Game {
                 rendering::render_game_over(&self.world);
             }
         }
+    }
+
+    fn render_crt_hint(&self) {
+        let scale = SCALE as f32;
+        let status = if self.crt.enabled { "ON" } else { "OFF" };
+        draw_text(
+            &format!("F1: CRT Effects [{status}]"),
+            10.0 * scale,
+            10.0 * scale,
+            10.0 * scale / 3.0,
+            Color::new(0.5, 0.5, 0.5, 1.0),
+        );
     }
 }
 
