@@ -1,0 +1,478 @@
+{
+  "project": {
+    "name": "RetroVaders",
+    "type": "Desktop Game",
+    "language": "Rust",
+    "engine": "Macroquad",
+    "version": "0.1.0",
+    "description": "An authentic recreation of the 1978 Space Invaders arcade experience with full CRT effects, period-accurate color zones, and the iconic accelerating soundtrack.",
+    "repository": "space-invaders",
+    "license": "MIT"
+  },
+
+  "target_platforms": [
+    {
+      "os": "Windows",
+      "min_version": "10",
+      "architecture": ["x86_64"],
+      "binary": "retrovaders.exe"
+    },
+    {
+      "os": "macOS",
+      "min_version": "11.0",
+      "architecture": ["x86_64", "aarch64"],
+      "binary": "retrovaders"
+    },
+    {
+      "os": "Linux",
+      "min_version": "Ubuntu 20.04 equivalent",
+      "architecture": ["x86_64"],
+      "binary": "retrovaders"
+    }
+  ],
+
+  "user_personas": [
+    {
+      "id": "retro-gamer",
+      "name": "Retro Gaming Enthusiast",
+      "description": "Player who experienced original arcades and wants authentic recreation",
+      "goals": [
+        "Feel nostalgia with accurate visuals and sounds",
+        "Experience authentic CRT display effects",
+        "Relive the original gameplay mechanics"
+      ],
+      "pain_points": [
+        "Modern remakes feel sterile without CRT effects",
+        "Wrong colors or proportions break immersion",
+        "Audio that doesn't speed up properly"
+      ]
+    },
+    {
+      "id": "new-player",
+      "name": "New to Classics",
+      "description": "Younger player curious about gaming history",
+      "goals": [
+        "Understand why Space Invaders was revolutionary",
+        "Experience simple but addictive gameplay",
+        "Learn gaming history through play"
+      ],
+      "pain_points": [
+        "Games feel too simple without context",
+        "Modern controls feel unresponsive",
+        "Unclear scoring and mechanics"
+      ]
+    },
+    {
+      "id": "rust-dev",
+      "name": "Rust Game Developer",
+      "description": "Developer learning game development in Rust",
+      "goals": [
+        "Study well-structured Rust game code",
+        "Learn Macroquad patterns",
+        "Understand retro game architecture"
+      ],
+      "pain_points": [
+        "Most examples are too complex",
+        "Lack of commented, educational code",
+        "No test coverage examples"
+      ]
+    }
+  ],
+
+  "display": {
+    "native_resolution": {
+      "width": 224,
+      "height": 256,
+      "aspect_ratio": "7:8",
+      "orientation": "portrait"
+    },
+    "scaling": {
+      "default_scale": 3,
+      "min_scale": 1,
+      "max_scale": 6,
+      "integer_scaling": true
+    },
+    "window": {
+      "default_size": {
+        "width": 672,
+        "height": 768
+      },
+      "resizable": true,
+      "fullscreen_support": true,
+      "title": "RetroVaders - Space Invaders (1978)"
+    },
+    "framerate": {
+      "target_fps": 60,
+      "vsync": true,
+      "frame_limiting": true
+    }
+  },
+
+  "visual_effects": {
+    "crt_simulation": {
+      "enabled_by_default": true,
+      "toggleable": true,
+      "effects": {
+        "scanlines": {
+          "weight": 0.15,
+          "description": "Horizontal dark lines simulating CRT raster"
+        },
+        "bloom": {
+          "strength": 0.3,
+          "threshold": 0.4,
+          "description": "Bright pixels bleed light, simulating phosphor glow"
+        },
+        "curvature": {
+          "amount": 0.02,
+          "description": "Slight barrel distortion for CRT curvature"
+        },
+        "color_bleeding": {
+          "amount": 0.5,
+          "description": "Slight RGB separation at edges"
+        },
+        "phosphor_persistence": {
+          "decay": 0.9,
+          "description": "Slight ghosting of moving objects"
+        }
+      }
+    },
+    "color_zones": {
+      "description": "Original arcade used colored gel strips over monochrome CRT",
+      "zones": [
+        {
+          "name": "ufo_zone",
+          "y_range": [0, 32],
+          "color": "#FF0000",
+          "description": "Red zone for UFO/mystery ship area"
+        },
+        {
+          "name": "play_area",
+          "y_range": [32, 184],
+          "color": "#C8C8FF",
+          "description": "White with blue phosphor tint for main play area"
+        },
+        {
+          "name": "shield_zone",
+          "y_range": [184, 240],
+          "color": "#00FF00",
+          "description": "Green zone for shields and player"
+        },
+        {
+          "name": "hud_zone",
+          "y_range": [240, 256],
+          "color": "#FFFFFF",
+          "description": "White zone for score and lives display"
+        }
+      ]
+    },
+    "sprites": {
+      "pixel_perfect": true,
+      "antialiasing": false,
+      "animation_style": "frame_swap",
+      "sprite_dimensions": {
+        "invader": { "width": 12, "height": 8 },
+        "player": { "width": 13, "height": 8 },
+        "bullet_player": { "width": 1, "height": 4 },
+        "bullet_invader": { "width": 3, "height": 7 },
+        "ufo": { "width": 16, "height": 7 },
+        "shield": { "width": 22, "height": 16 }
+      }
+    }
+  },
+
+  "audio": {
+    "engine": "macroquad_audio",
+    "format": "wav",
+    "sample_rate": 44100,
+    "sounds": {
+      "march": {
+        "description": "Four-note invader march that speeds up",
+        "files": ["march_1.wav", "march_2.wav", "march_3.wav", "march_4.wav"],
+        "behavior": "sequential_loop",
+        "tempo_scaling": {
+          "base_interval_ms": 800,
+          "min_interval_ms": 50,
+          "scaling": "linear_with_remaining_invaders"
+        }
+      },
+      "player_shoot": {
+        "file": "shoot.wav",
+        "max_concurrent": 1
+      },
+      "invader_killed": {
+        "file": "invader_killed.wav",
+        "max_concurrent": 3
+      },
+      "player_explosion": {
+        "file": "player_explosion.wav",
+        "max_concurrent": 1
+      },
+      "ufo": {
+        "file": "ufo.wav",
+        "behavior": "loop_while_active"
+      },
+      "ufo_hit": {
+        "file": "ufo_hit.wav",
+        "max_concurrent": 1
+      }
+    },
+    "volume_controls": {
+      "master": { "default": 0.8, "range": [0, 1] },
+      "music": { "default": 0.7, "range": [0, 1] },
+      "sfx": { "default": 0.9, "range": [0, 1] }
+    }
+  },
+
+  "gameplay": {
+    "invader_grid": {
+      "rows": 5,
+      "columns": 11,
+      "total": 55,
+      "spacing": {
+        "horizontal": 16,
+        "vertical": 16
+      },
+      "start_position": {
+        "x": 26,
+        "y": 64
+      },
+      "row_types": [
+        { "row": 0, "type": "squid", "points": 30 },
+        { "row": 1, "type": "crab", "points": 20 },
+        { "row": 2, "type": "crab", "points": 20 },
+        { "row": 3, "type": "octopus", "points": 10 },
+        { "row": 4, "type": "octopus", "points": 10 }
+      ]
+    },
+    "invader_movement": {
+      "base_step_pixels": 2,
+      "drop_pixels": 8,
+      "direction_pattern": ["right", "drop", "left", "drop"],
+      "speed_scaling": {
+        "description": "Fewer invaders = faster movement (original arcade quirk)",
+        "formula": "base_delay * (remaining_invaders / total_invaders)",
+        "minimum_delay_factor": 0.1
+      },
+      "animation": {
+        "frames": 2,
+        "frame_swap_on_move": true
+      }
+    },
+    "invader_shooting": {
+      "max_concurrent_bullets": 3,
+      "fire_probability_per_frame": 0.003,
+      "bullet_speed": 120,
+      "shooter_selection": "random_bottom_row"
+    },
+    "player": {
+      "start_position": {
+        "x": 112,
+        "y": 216
+      },
+      "speed": 120,
+      "bounds": {
+        "min_x": 8,
+        "max_x": 203
+      },
+      "lives": {
+        "default": 3,
+        "max": 6,
+        "extra_life_at": 1500
+      },
+      "respawn_delay_ms": 2000,
+      "invincibility_after_respawn_ms": 1000
+    },
+    "player_shooting": {
+      "max_concurrent_bullets": 1,
+      "bullet_speed": 400,
+      "fire_cooldown_ms": 0
+    },
+    "shields": {
+      "count": 4,
+      "positions": [
+        { "x": 32, "y": 192 },
+        { "x": 78, "y": 192 },
+        { "x": 124, "y": 192 },
+        { "x": 170, "y": 192 }
+      ],
+      "erosion": {
+        "type": "pixel_based",
+        "damage_radius": 3,
+        "damage_from": ["player_bullet", "invader_bullet", "invader_collision"]
+      }
+    },
+    "ufo": {
+      "spawn_probability_per_frame": 0.0005,
+      "min_spawn_interval_ms": 25000,
+      "speed": 50,
+      "direction": "alternating",
+      "y_position": 24,
+      "scoring": {
+        "method": "shot_count_based",
+        "values": [100, 50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100],
+        "cycle": true
+      }
+    }
+  },
+
+  "game_states": {
+    "states": [
+      {
+        "name": "attract",
+        "description": "Demo/title screen showing gameplay",
+        "transitions_to": ["playing"],
+        "trigger": "any_key_or_button"
+      },
+      {
+        "name": "playing",
+        "description": "Active gameplay",
+        "transitions_to": ["paused", "player_death", "wave_complete", "game_over"],
+        "substates": ["normal", "player_respawning"]
+      },
+      {
+        "name": "paused",
+        "description": "Game paused",
+        "transitions_to": ["playing", "attract"],
+        "trigger": "pause_key"
+      },
+      {
+        "name": "player_death",
+        "description": "Player hit, showing explosion",
+        "transitions_to": ["playing", "game_over"],
+        "duration_ms": 2000
+      },
+      {
+        "name": "wave_complete",
+        "description": "All invaders eliminated",
+        "transitions_to": ["playing"],
+        "duration_ms": 2000
+      },
+      {
+        "name": "game_over",
+        "description": "No lives remaining or invasion reached bottom",
+        "transitions_to": ["attract", "playing"],
+        "show_high_score_entry": true
+      }
+    ]
+  },
+
+  "scoring": {
+    "invaders": {
+      "squid": 30,
+      "crab": 20,
+      "octopus": 10
+    },
+    "ufo": {
+      "min": 50,
+      "max": 300,
+      "method": "shot_count_table"
+    },
+    "extra_life": {
+      "points_required": 1500,
+      "max_extra_lives": 1
+    },
+    "high_score": {
+      "persistence": "local_file",
+      "file_name": "high_scores.json",
+      "max_entries": 10,
+      "fields": ["rank", "name", "score", "wave_reached", "date"]
+    }
+  },
+
+  "input": {
+    "keyboard": {
+      "move_left": ["ArrowLeft", "A"],
+      "move_right": ["ArrowRight", "D"],
+      "fire": ["Space", "W", "ArrowUp"],
+      "pause": ["Escape", "P"],
+      "start": ["Enter", "Space"],
+      "quit": ["Q"]
+    },
+    "gamepad": {
+      "support": true,
+      "move": "left_stick_x_or_dpad",
+      "fire": ["A", "X", "RightTrigger"],
+      "pause": "Start",
+      "start": ["A", "Start"]
+    },
+    "sensitivity": {
+      "deadzone": 0.15,
+      "description": "Minimum input threshold for gamepad"
+    }
+  },
+
+  "waves": {
+    "progression": {
+      "description": "Each wave increases difficulty",
+      "changes_per_wave": {
+        "invader_start_y_increase": 8,
+        "base_speed_multiplier_increase": 0.05,
+        "invader_fire_probability_increase": 0.0002
+      },
+      "max_difficulty_wave": 10
+    },
+    "reset_on_wave_complete": [
+      "invader_grid",
+      "shields",
+      "ufo_timer"
+    ],
+    "preserve_on_wave_complete": [
+      "score",
+      "lives",
+      "player_position"
+    ]
+  },
+
+  "technical_requirements": {
+    "performance": {
+      "min_fps": 60,
+      "max_frame_time_ms": 16.67,
+      "memory_budget_mb": 64
+    },
+    "dependencies": {
+      "macroquad": "^0.4",
+      "serde": "^1.0",
+      "serde_json": "^1.0",
+      "rand": "^0.8"
+    },
+    "optional_dependencies": {
+      "gilrs": "^0.10",
+      "description": "Gamepad support"
+    }
+  },
+
+  "success_criteria": {
+    "mvp_complete": [
+      "Player can move and shoot",
+      "Invaders march and shoot",
+      "Collision detection works",
+      "Shields are destructible",
+      "Score tracking works",
+      "Lives system works",
+      "Game over condition triggers",
+      "Wave progression works"
+    ],
+    "polish_complete": [
+      "CRT effects implemented and toggleable",
+      "Color zones accurate to original",
+      "Audio speeds up correctly",
+      "UFO spawns and can be hit",
+      "High scores persist",
+      "Attract mode works"
+    ],
+    "production_ready": [
+      "All 32 features pass",
+      "Test coverage >80%",
+      "cargo clippy clean",
+      "Builds on all three platforms",
+      "README complete",
+      "Release binaries packaged"
+    ],
+    "key_metrics": [
+      "Frame rate stable at 60 FPS",
+      "Input latency <1 frame",
+      "Audio sync accurate",
+      "Memory usage <64MB"
+    ]
+  }
+}

@@ -1,0 +1,745 @@
+{
+  "metadata": {
+    "project": "RetroVaders",
+    "total_features": 32,
+    "phases": 4,
+    "created": "2026-02-02",
+    "last_updated": "2026-02-03"
+  },
+  "features": [
+    {
+      "id": "F001",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Project Setup",
+      "description": "Initialize Rust project with Cargo.toml, Macroquad dependency, and folder structure",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 0.5,
+      "dependencies": [],
+      "files": [
+        "Cargo.toml",
+        "src/main.rs",
+        "src/lib.rs"
+      ],
+      "acceptance_criteria": [
+        "cargo build compiles without errors",
+        "cargo run opens a window",
+        "Folder structure matches PRD"
+      ]
+    },
+    {
+      "id": "F002",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Window Configuration",
+      "description": "Configure portrait mode window (224x256 scaled 3x), title, and integer scaling",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 0.5,
+      "dependencies": [
+        "F001"
+      ],
+      "files": [
+        "src/main.rs",
+        "src/game/config.rs"
+      ],
+      "acceptance_criteria": [
+        "Window opens at 672x768",
+        "Portrait aspect ratio maintained",
+        "Title bar shows game name"
+      ]
+    },
+    {
+      "id": "F003",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Game Loop Structure",
+      "description": "Implement main game loop with fixed timestep, input polling, update, and render phases",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F002"
+      ],
+      "files": [
+        "src/main.rs",
+        "src/game/mod.rs",
+        "src/game/state.rs"
+      ],
+      "acceptance_criteria": [
+        "60 FPS locked",
+        "Delta time calculated correctly",
+        "State transitions work"
+      ]
+    },
+    {
+      "id": "F004",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Asset Loading System",
+      "description": "Create asset manager for loading sprites, sounds, and shaders",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F003"
+      ],
+      "files": [
+        "src/rendering/sprites.rs",
+        "assets/"
+      ],
+      "acceptance_criteria": [
+        "Sprites load without error",
+        "Missing asset shows clear error",
+        "Assets cached after first load"
+      ]
+    },
+    {
+      "id": "F005",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Input Handling Framework",
+      "description": "Implement keyboard input polling with configurable keybindings",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 0.5,
+      "dependencies": [
+        "F003"
+      ],
+      "files": [
+        "src/input/mod.rs",
+        "src/input/keyboard.rs"
+      ],
+      "acceptance_criteria": [
+        "Arrow keys detected",
+        "Space bar detected",
+        "Escape key detected",
+        "Multiple key configs supported"
+      ]
+    },
+    {
+      "id": "F006",
+      "phase": 1,
+      "category": "infrastructure",
+      "name": "Entity System",
+      "description": "Create simple entity component system (no external crate) for game objects",
+      "status": "completed",
+      "priority": "critical",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F003"
+      ],
+      "files": [
+        "src/entities/mod.rs",
+        "src/game/world.rs"
+      ],
+      "acceptance_criteria": [
+        "Entities can be created",
+        "Entities can be destroyed",
+        "Entities have position, sprite, hitbox"
+      ]
+    },
+    {
+      "id": "F007",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Player Cannon",
+      "description": "Implement player cannon sprite, position, and horizontal movement",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F005",
+        "F006"
+      ],
+      "files": [
+        "src/entities/player.rs"
+      ],
+      "acceptance_criteria": [
+        "Player sprite renders correctly",
+        "Left/right movement works",
+        "Movement bounded to play area",
+        "Smooth 120 px/s movement"
+      ]
+    },
+    {
+      "id": "F008",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Invader Grid",
+      "description": "Create 5x11 invader grid with correct types per row",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F006"
+      ],
+      "files": [
+        "src/entities/invader.rs"
+      ],
+      "acceptance_criteria": [
+        "55 invaders in correct formation",
+        "Row 0 = squid, 1-2 = crab, 3-4 = octopus",
+        "Correct spacing (16px)",
+        "Animation frames alternate"
+      ]
+    },
+    {
+      "id": "F009",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Invader Movement",
+      "description": "Implement march pattern: move step, direction change at edges, drop down",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F008"
+      ],
+      "files": [
+        "src/systems/movement.rs"
+      ],
+      "acceptance_criteria": [
+        "Invaders move in unison",
+        "Direction reverses at screen edge",
+        "Grid drops 8px on direction change",
+        "Animation frame swaps on each move"
+      ]
+    },
+    {
+      "id": "F010",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Speed Acceleration",
+      "description": "Invader movement speed increases as invaders are eliminated",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F009"
+      ],
+      "files": [
+        "src/systems/movement.rs"
+      ],
+      "acceptance_criteria": [
+        "Speed scales with remaining invaders",
+        "Last invader moves very fast",
+        "Floor at 10% of base delay"
+      ]
+    },
+    {
+      "id": "F011",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Player Shooting",
+      "description": "Player can fire bullets, one at a time, upward",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F007"
+      ],
+      "files": [
+        "src/entities/bullet.rs",
+        "src/systems/shooting.rs"
+      ],
+      "acceptance_criteria": [
+        "Space bar fires bullet",
+        "Bullet moves upward at 400 px/s",
+        "Only 1 player bullet at a time",
+        "Bullet despawns at top"
+      ]
+    },
+    {
+      "id": "F012",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Invader Shooting",
+      "description": "Random bottom-row invaders fire bullets downward",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F008"
+      ],
+      "files": [
+        "src/entities/bullet.rs",
+        "src/systems/shooting.rs"
+      ],
+      "acceptance_criteria": [
+        "Only bottom invaders per column fire",
+        "Max 3 concurrent invader bullets",
+        "Bullets move downward at 120 px/s",
+        "Random probability per frame"
+      ]
+    },
+    {
+      "id": "F013",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Collision Detection",
+      "description": "Pixel-perfect collision between bullets, invaders, player, shields",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F011",
+        "F012"
+      ],
+      "files": [
+        "src/systems/collision.rs"
+      ],
+      "acceptance_criteria": [
+        "Player bullet kills invader",
+        "Invader bullet kills player",
+        "Bullets blocked by shields",
+        "Invaders erode shields on contact"
+      ]
+    },
+    {
+      "id": "F014",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Shield System",
+      "description": "Create 4 destructible shields with pixel-based erosion",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F006"
+      ],
+      "files": [
+        "src/entities/shield.rs"
+      ],
+      "acceptance_criteria": [
+        "4 shields positioned correctly",
+        "Bullets erode ~3px radius",
+        "Erosion visible progressively",
+        "Shields regenerate on new wave"
+      ]
+    },
+    {
+      "id": "F015",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Lives System",
+      "description": "Track player lives, respawn after death, game over on 0 lives",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F007",
+        "F013"
+      ],
+      "files": [
+        "src/game/state.rs",
+        "src/entities/player.rs"
+      ],
+      "acceptance_criteria": [
+        "Start with 3 lives",
+        "Life lost on player death",
+        "Respawn after 2 seconds",
+        "Game over when lives = 0"
+      ]
+    },
+    {
+      "id": "F016",
+      "phase": 2,
+      "category": "gameplay",
+      "name": "Score Tracking",
+      "description": "Track and display current score, high score",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F013"
+      ],
+      "files": [
+        "src/systems/scoring.rs",
+        "src/rendering/mod.rs"
+      ],
+      "acceptance_criteria": [
+        "Score increases on invader kill",
+        "Correct points per type (30/20/10)",
+        "Score displayed on HUD",
+        "High score displayed"
+      ]
+    },
+    {
+      "id": "F017",
+      "phase": 3,
+      "category": "polish",
+      "name": "UFO/Mystery Ship",
+      "description": "Random UFO spawns, crosses screen, can be hit for bonus points",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F011",
+        "F016"
+      ],
+      "files": [
+        "src/entities/ufo.rs"
+      ],
+      "acceptance_criteria": [
+        "UFO spawns randomly",
+        "Moves across top of screen",
+        "Can be shot for 50-300 points",
+        "Makes distinctive sound"
+      ]
+    },
+    {
+      "id": "F018",
+      "phase": 3,
+      "category": "polish",
+      "name": "CRT Shader Effects",
+      "description": "Implement scanlines, bloom, slight curvature via post-processing shader",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 3,
+      "dependencies": [
+        "F004"
+      ],
+      "files": [
+        "assets/shaders/crt.glsl",
+        "src/rendering/crt.rs"
+      ],
+      "acceptance_criteria": [
+        "Scanlines visible",
+        "Bloom on bright pixels",
+        "Subtle barrel distortion",
+        "Can be toggled off"
+      ]
+    },
+    {
+      "id": "F019",
+      "phase": 3,
+      "category": "polish",
+      "name": "Color Gel Zones",
+      "description": "Apply original arcade color zones (green/red/white) based on Y position",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F018"
+      ],
+      "files": [
+        "src/rendering/crt.rs"
+      ],
+      "acceptance_criteria": [
+        "Top 32px tinted red",
+        "Middle area slight blue-white",
+        "Shield area green",
+        "HUD area white"
+      ]
+    },
+    {
+      "id": "F020",
+      "phase": 3,
+      "category": "polish",
+      "name": "March Audio",
+      "description": "Four-note march that speeds up with fewer invaders",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F010"
+      ],
+      "files": [
+        "src/audio/mod.rs",
+        "src/audio/sounds.rs",
+        "assets/sounds/"
+      ],
+      "acceptance_criteria": [
+        "Four notes cycle sequentially",
+        "Tempo scales with invader count",
+        "Very fast with 1 invader",
+        "Stops when wave cleared"
+      ]
+    },
+    {
+      "id": "F021",
+      "phase": 3,
+      "category": "polish",
+      "name": "Sound Effects",
+      "description": "Player shoot, invader death, player death, UFO sounds",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F004"
+      ],
+      "files": [
+        "src/audio/sounds.rs",
+        "assets/sounds/"
+      ],
+      "acceptance_criteria": [
+        "Shoot sound plays on fire",
+        "Death sound on invader kill",
+        "Explosion sound on player death",
+        "UFO has continuous sound"
+      ]
+    },
+    {
+      "id": "F022",
+      "phase": 3,
+      "category": "polish",
+      "name": "High Score Persistence",
+      "description": "Save and load high scores from JSON file",
+      "status": "pending",
+      "priority": "medium",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F016"
+      ],
+      "files": [
+        "src/systems/scoring.rs"
+      ],
+      "acceptance_criteria": [
+        "High scores saved to disk",
+        "Top 10 scores retained",
+        "Survives app restart",
+        "Name entry on new high score"
+      ]
+    },
+    {
+      "id": "F023",
+      "phase": 3,
+      "category": "polish",
+      "name": "Game Flow States",
+      "description": "Implement game over, wave complete, restart transitions",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F015"
+      ],
+      "files": [
+        "src/game/state.rs"
+      ],
+      "acceptance_criteria": [
+        "Game over screen shows",
+        "Wave complete pauses briefly",
+        "Press key to restart",
+        "Score preserved between waves"
+      ]
+    },
+    {
+      "id": "F024",
+      "phase": 3,
+      "category": "polish",
+      "name": "Attract Mode",
+      "description": "Demo/title screen with gameplay preview",
+      "status": "pending",
+      "priority": "medium",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F023"
+      ],
+      "files": [
+        "src/game/state.rs"
+      ],
+      "acceptance_criteria": [
+        "Title shown on startup",
+        "Demo plays automatically",
+        "High scores displayed",
+        "Any key starts game"
+      ]
+    },
+    {
+      "id": "F025",
+      "phase": 4,
+      "category": "production",
+      "name": "Cross-Platform Builds",
+      "description": "Configure cargo for Windows, macOS, Linux release builds",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F024"
+      ],
+      "files": [
+        "Cargo.toml",
+        ".github/workflows/",
+        "build.sh"
+      ],
+      "acceptance_criteria": [
+        "cargo build --release works on all platforms",
+        "Binary runs without Rust installed",
+        "Assets bundled correctly"
+      ]
+    },
+    {
+      "id": "F026",
+      "phase": 4,
+      "category": "production",
+      "name": "Settings Configuration",
+      "description": "Configurable controls, difficulty, CRT toggle via settings file",
+      "status": "pending",
+      "priority": "medium",
+      "estimated_hours": 1.5,
+      "dependencies": [
+        "F005"
+      ],
+      "files": [
+        "src/game/config.rs"
+      ],
+      "acceptance_criteria": [
+        "Settings file created if missing",
+        "Controls rebindable",
+        "CRT effects toggleable",
+        "Starting lives configurable"
+      ]
+    },
+    {
+      "id": "F027",
+      "phase": 4,
+      "category": "production",
+      "name": "Frame Rate Optimization",
+      "description": "Ensure consistent 60 FPS, profile and optimize hot paths",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F018"
+      ],
+      "files": [
+        "src/main.rs"
+      ],
+      "acceptance_criteria": [
+        "60 FPS stable",
+        "No frame drops during action",
+        "Memory usage <64MB",
+        "CPU usage reasonable"
+      ]
+    },
+    {
+      "id": "F028",
+      "phase": 4,
+      "category": "production",
+      "name": "Performance Profiling",
+      "description": "Profile and eliminate performance bottlenecks",
+      "status": "pending",
+      "priority": "medium",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F027"
+      ],
+      "files": [],
+      "acceptance_criteria": [
+        "No hot path allocations",
+        "Sprite batching efficient",
+        "Audio doesn't block"
+      ]
+    },
+    {
+      "id": "F029",
+      "phase": 4,
+      "category": "testing",
+      "name": "Unit Test Coverage",
+      "description": "Achieve >80% unit test coverage on game logic",
+      "status": "pending",
+      "priority": "critical",
+      "estimated_hours": 4,
+      "dependencies": [
+        "F016"
+      ],
+      "files": [
+        "tests/"
+      ],
+      "acceptance_criteria": [
+        "Collision tests pass",
+        "Movement tests pass",
+        "Scoring tests pass",
+        "Coverage >80%"
+      ]
+    },
+    {
+      "id": "F030",
+      "phase": 4,
+      "category": "testing",
+      "name": "Integration Tests",
+      "description": "Test full game flow scenarios",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F029"
+      ],
+      "files": [
+        "tests/integration/"
+      ],
+      "acceptance_criteria": [
+        "Full wave clear test",
+        "Game over test",
+        "High score save/load test"
+      ]
+    },
+    {
+      "id": "F031",
+      "phase": 4,
+      "category": "documentation",
+      "name": "README Documentation",
+      "description": "Complete README with build instructions, controls, features",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 1,
+      "dependencies": [
+        "F025"
+      ],
+      "files": [
+        "README.md"
+      ],
+      "acceptance_criteria": [
+        "Build instructions for all platforms",
+        "Controls documented",
+        "Screenshots included",
+        "License specified"
+      ]
+    },
+    {
+      "id": "F032",
+      "phase": 4,
+      "category": "production",
+      "name": "Release Packaging",
+      "description": "Create release packages with binaries and assets",
+      "status": "pending",
+      "priority": "high",
+      "estimated_hours": 2,
+      "dependencies": [
+        "F025",
+        "F031"
+      ],
+      "files": [
+        "release/"
+      ],
+      "acceptance_criteria": [
+        "Windows .zip with .exe",
+        "macOS .dmg or .app",
+        "Linux .tar.gz",
+        "All include README"
+      ]
+    }
+  ],
+  "summary": {
+    "by_phase": {
+      "phase_1_foundation": 6,
+      "phase_2_core_gameplay": 10,
+      "phase_3_polish": 8,
+      "phase_4_production": 8
+    },
+    "by_status": {
+      "pending": 26,
+      "in_progress": 0,
+      "completed": 6,
+      "blocked": 0
+    },
+    "by_priority": {
+      "critical": 15,
+      "high": 13,
+      "medium": 4
+    },
+    "total_estimated_hours": 48.5
+  }
+}

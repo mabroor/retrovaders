@@ -1,0 +1,36 @@
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Debug
+*.pdb
+
+# High scores (local data)
+high_scores.json
+settings.json
+
+# Logs
+*.log
+
+# Coverage
+*.profraw
+*.profdata
+coverage/
+tarpaulin-report.html
